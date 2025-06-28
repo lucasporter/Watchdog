@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Watchdog.Models;
-using Watchdog.Utils;
 
 namespace Watchdog.ViewModels
 {
