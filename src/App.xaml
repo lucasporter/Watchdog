@@ -1,0 +1,10 @@
+<Application x:Class="Watchdog.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Startup="Application_Startup"
+             Exit="Application_Exit">
+    <Application.Resources>
+        <!-- Global styles and resources go here -->
+    </Application.Resources>
+</Application>
+
