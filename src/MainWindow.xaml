@@ -8,11 +8,11 @@
         Background="#FF1E1E1E">
 
     <Window.Resources>
+        <!-- Template for displaying each node -->
         <DataTemplate DataType="{x:Type vm:MonitoredNodeViewModel}">
             <Border BorderThickness="1"
                     BorderBrush="Gray"
-                    Margin="5"
-                    Padding="5">
+                    Margin="5">
                 <StackPanel>
                     <TextBlock Text="{Binding Hostname}"
                                Foreground="White"
@@ -40,16 +40,20 @@
                 <DataTemplate>
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/> <!-- Run Button -->
-                            <RowDefinition Height="*"/>    <!-- Content -->
+                            <RowDefinition Height="Auto"/>
+                            <!-- Run Button -->
+                            <RowDefinition Height="*"/>
+                            <!-- Cluster Layout -->
                         </Grid.RowDefinitions>
 
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="200"/> <!-- Sidebar -->
-                            <ColumnDefinition Width="*"/>   <!-- Node Grid -->
+                            <ColumnDefinition Width="200"/>
+                            <!-- Sidebar -->
+                            <ColumnDefinition Width="*"/>
+                            <!-- Node Grid -->
                         </Grid.ColumnDefinitions>
 
-                        <!-- Run All Button -->
+                        <!-- Run All Tests Button -->
                         <Button Content="Run All Tests"
                                 Grid.Row="0"
                                 Grid.ColumnSpan="2"
@@ -61,7 +65,7 @@
                         <StackPanel Grid.Row="1" Grid.Column="0"
                                     Background="#FF2D2D30"
                                     Orientation="Vertical"
-                                    Padding="10">
+                                    Margin="10">
                             <TextBlock Text="Sidebar"
                                        Foreground="White"
                                        FontSize="16"
@@ -75,7 +79,7 @@
                             <ItemsControl ItemsSource="{Binding Nodes}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <UniformGrid Columns="4"/>
+                                        <UniformGrid Columns="4" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                             </ItemsControl>
@@ -86,4 +90,3 @@
         </TabControl>
     </Grid>
 </Window>
-

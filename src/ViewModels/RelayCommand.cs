@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Input;
 
-namespace Watchdog.Utils
+namespace Watchdog.ViewModels
 {
     public class RelayCommand : ICommand
     {

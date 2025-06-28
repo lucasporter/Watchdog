@@ -1,7 +1,9 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using Watchdog.Models;
 using Watchdog.ViewModels;
+using System.Collections.ObjectModel;
 
 namespace Watchdog
 {

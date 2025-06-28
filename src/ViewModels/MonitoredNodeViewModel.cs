@@ -28,7 +28,7 @@ namespace Watchdog.ViewModels
             // Can raise events if needed for UI binding
         }
 
-	public void RunAllTests()
+    public void RunAllTests()
         {
             foreach (var test in UnitTests)
             {
