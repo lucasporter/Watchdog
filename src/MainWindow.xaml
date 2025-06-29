@@ -3,88 +3,156 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:Watchdog.ViewModels"
         Title="Watchdog"
-        Height="800" Width="1200"
-        WindowStartupLocation="CenterScreen"
-        Background="#FF1E1E1E">
-
-    <Window.Resources>
-        <!-- Template for displaying each node -->
-        <DataTemplate DataType="{x:Type vm:MonitoredNodeViewModel}">
-            <Border BorderThickness="1"
-                    BorderBrush="Gray"
-                    Margin="5">
-                <StackPanel>
-                    <TextBlock Text="{Binding Hostname}"
-                               Foreground="White"
-                               FontWeight="Bold"/>
-                    <TextBlock Text="{Binding Status}"
-                               Foreground="LightGray"
-                               FontSize="12"/>
-                </StackPanel>
-            </Border>
-        </DataTemplate>
-    </Window.Resources>
+        Height="600"
+        Width="1000"
+        Background="{StaticResource BackgroundBrush}">
 
     <Grid>
         <TabControl x:Name="ClusterTabs"
-                    ItemsSource="{Binding Clusters}"
-                    SelectedItem="{Binding SelectedCluster}"
-                    Margin="10">
+                    ItemsSource="{Binding ClustersPlus}"
+                    SelectedIndex="{Binding SelectedClusterIndex, Mode=TwoWay}"
+                    SelectionChanged="ClusterTabs_SelectionChanged"
+                    Background="{StaticResource TabHeaderBrush}"
+                    BorderBrush="{StaticResource BackgroundBrush}"
+                    BorderThickness="0"
+                    Padding="0">
+
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="Background" Value="{StaticResource BackgroundBrush}" />
+                    <Setter Property="Foreground" Value="{StaticResource TabForeground}" />
+                    <Setter Property="BorderBrush" Value="{StaticResource TabHeaderBrush}" />
+                    <Setter Property="BorderThickness" Value="0" />
+                </Style>
+                <Style TargetType="TabControl">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabControl">
+                                <Grid>
+                                    <DockPanel>
+                                        <TabPanel x:Name="HeaderPanel"
+                                                  Background="{StaticResource BackgroundBrush}"
+                                                  IsItemsHost="True"
+                                                  Margin="10,10,10,0"
+                                                  DockPanel.Dock="Top"/>
+                                        <Border CornerRadius="0,6,6,6"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                Background="{TemplateBinding Background}"
+                                                Margin="10,0,10,10">
+                                            <ContentPresenter x:Name="ContentPanel"
+                                                              ContentSource="SelectedContent"
+                                                              Margin="0"/>
+                                        </Border>
+                                    </DockPanel>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Background" Value="{StaticResource TabHeaderBrush}" />
+                    <Setter Property="BorderBrush" Value="{StaticResource TabBorderBrush}" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Padding" Value="0" />
+                </Style>
+            </TabControl.Resources>
+
             <TabControl.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Name}" />
+                    <TextBlock Text="{Binding Name}" Foreground="{StaticResource TextBrush}" Background="{StaticResource TabHeaderBrush}"/>
                 </DataTemplate>
             </TabControl.ItemTemplate>
 
             <TabControl.ContentTemplate>
                 <DataTemplate>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <!-- Run Button -->
-                            <RowDefinition Height="*"/>
-                            <!-- Cluster Layout -->
-                        </Grid.RowDefinitions>
+                    <Border Margin="10">
+                        <DockPanel Background="{StaticResource SidebarBrush}" LastChildFill="True">
 
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="200"/>
-                            <!-- Sidebar -->
-                            <ColumnDefinition Width="*"/>
-                            <!-- Node Grid -->
-                        </Grid.ColumnDefinitions>
+                            <!-- Control Row -->
+                            <StackPanel Orientation="Horizontal"
+                                        DockPanel.Dock="Top"
+                                        Background="{StaticResource SidebarBrush}"
+                                        Height="40"
+                                        VerticalAlignment="Top"
+                                        HorizontalAlignment="Left"
+                                        Margin="0">
+                                <Button Content="Add Node"
+                                        Click="AddNode_Click"
+                                        Margin="0"
+                                        Padding="8,4"
+                                        Background="#55CC55"
+                                        Foreground="White"
+                                        FontWeight="Bold"
+                                        BorderThickness="0"
+                                        Cursor="Hand" />
+                            </StackPanel>
 
-                        <!-- Run All Tests Button -->
-                        <Button Content="Run All Tests"
-                                Grid.Row="0"
-                                Grid.ColumnSpan="2"
-                                Padding="6"
-                                Margin="5"
-                                Command="{Binding RunAllTestsCommand}"/>
+                            <!-- Main Content Area -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="240" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
 
-                        <!-- Sidebar -->
-                        <StackPanel Grid.Row="1" Grid.Column="0"
-                                    Background="#FF2D2D30"
-                                    Orientation="Vertical"
-                                    Margin="10">
-                            <TextBlock Text="Sidebar"
-                                       Foreground="White"
-                                       FontSize="16"
-                                       Margin="0,0,0,10"/>
-                        </StackPanel>
+                                <!-- Sidebar -->
+                                <Border Grid.Column="0"
+                                        Background="{StaticResource SidebarBrush}"
+                                        BorderBrush="Black"
+                                        BorderThickness="0"
+                                        Margin="0">
+                                    <StackPanel Margin="0">
+                                        <TextBlock Text="Nodes"
+                                                   FontWeight="Bold"
+                                                   FontSize="16"
+                                                   Foreground="{StaticResource TextBrush}"
+                                                   Margin="0"/>
+                                        <ItemsControl ItemsSource="{Binding Nodes}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Hostname}" Foreground="{StaticResource TextBrush}" />
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
 
-                        <!-- Node Grid -->
-                        <ScrollViewer Grid.Row="1" Grid.Column="1"
-                                      VerticalScrollBarVisibility="Auto"
-                                      HorizontalScrollBarVisibility="Disabled">
-                            <ItemsControl ItemsSource="{Binding Nodes}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <UniformGrid Columns="4" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
-                        </ScrollViewer>
-                    </Grid>
+                                <!-- Node Grid -->
+                                <ScrollViewer Grid.Column="1"
+                                              Background="{StaticResource BackgroundBrush}"
+                                              VerticalScrollBarVisibility="Auto"
+                                              HorizontalScrollBarVisibility="Disabled"
+                                              Padding="0">
+                                    <ItemsControl ItemsSource="{Binding Nodes}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <UniformGrid Columns="4" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{StaticResource SidebarBrush}"
+                                                        BorderBrush="Gray"
+                                                        BorderThickness="0"
+                                                        Margin="5"
+                                                        Width="150"
+                                                        Height="100">
+                                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                        <TextBlock Text="{Binding Hostname}"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="{StaticResource TextBrush}"
+                                                                   HorizontalAlignment="Center" />
+                                                        <TextBlock Text="{Binding Status}"
+                                                                   FontSize="12"
+                                                                   Foreground="{StaticResource TextBrush}"
+                                                                   HorizontalAlignment="Center" />
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Grid>
+                        </DockPanel>
+                    </Border>
                 </DataTemplate>
             </TabControl.ContentTemplate>
         </TabControl>

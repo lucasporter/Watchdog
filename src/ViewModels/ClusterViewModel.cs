@@ -1,41 +1,32 @@
 using System.Collections.ObjectModel;
-using System.Windows.Input;
 using Watchdog.Models;
 
 namespace Watchdog.ViewModels
 {
     public class ClusterViewModel
     {
-        public string Name { get; }
-        public ClusterStatus Status => _cluster.Status;
+        private readonly Cluster _cluster;
+
+        public string Name => _cluster.Name;
+        public bool IsPlaceholder { get; set; }
 
         public ObservableCollection<MonitoredNodeViewModel> Nodes { get; }
-
-        public ICommand RunAllTestsCommand { get; }
-
-        private readonly Cluster _cluster;
 
         public ClusterViewModel(Cluster cluster)
         {
             _cluster = cluster;
-            Name = cluster.Name;
-
-            Nodes = new ObservableCollection<MonitoredNodeViewModel>();
-            foreach (var node in cluster.Nodes)
-            {
-                Nodes.Add(new MonitoredNodeViewModel(node));
-            }
-
-            RunAllTestsCommand = new RelayCommand(RunAllTests);
+            Nodes = new ObservableCollection<MonitoredNodeViewModel>(
+                cluster.Nodes.Select(n => new MonitoredNodeViewModel(n))
+            );
         }
 
-        private void RunAllTests()
+        public void AddNode(MonitoredNode node)
         {
-            foreach (var node in Nodes)
-            {
-                node.RunAllTests();
-            }
+            _cluster.Nodes.Add(node);
+            Nodes.Add(new MonitoredNodeViewModel(node));
         }
+
+        public static ClusterViewModel AddTabPlaceholder =>
+            new ClusterViewModel(new Cluster { Name = "+" }) { IsPlaceholder = true };
     }
 }
-
