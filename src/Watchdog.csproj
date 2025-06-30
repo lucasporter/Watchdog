@@ -8,16 +8,4 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>Watchdog</RootNamespace>
     </PropertyGroup>
-
-    <ItemGroup>
-        <Compile Remove="themes\Colors.xaml\**" />
-        <EmbeddedResource Remove="themes\Colors.xaml\**" />
-        <None Remove="themes\Colors.xaml\**" />
-        <Page Remove="themes\Colors.xaml\**" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Themes\" />
-    </ItemGroup>
-
 </Project>

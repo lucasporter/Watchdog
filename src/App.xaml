@@ -7,42 +7,6 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Themes/Colors.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <Style TargetType="TabItem">
-                <Setter Property="Foreground" Value="{StaticResource TabForeground}" />
-                <Setter Property="Background" Value="{StaticResource TabBackground}" />
-                <Setter Property="BorderBrush" Value="{StaticResource TabBorderBrush}" />
-                <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="Padding" Value="10,5" />
-                <Setter Property="Margin" Value="1" />
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="TabItem">
-                            <Border Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="3,3,0,0"
-                        Padding="{TemplateBinding Padding}"
-                        Margin="{TemplateBinding Margin}">
-                                <ContentPresenter x:Name="ContentSite"
-                                      VerticalAlignment="Center"
-                                      HorizontalAlignment="Center"
-                                      ContentSource="Header"
-                                      RecognizesAccessKey="True" />
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="{StaticResource TabSelectedBackground}" />
-                                    <Setter Property="Panel.ZIndex" Value="1"/>
-                                </Trigger>
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter Property="Foreground" Value="Gray" />
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-
         </ResourceDictionary>
     </Application.Resources>
 </Application>

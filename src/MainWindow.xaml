@@ -6,155 +6,173 @@
         Height="600"
         Width="1000"
         Background="{StaticResource BackgroundBrush}">
+    <!-- TODO:
+             1. Probably need to do something custom with the tab headers. 
+                I want these to look sleek and seamlessly blend with the rest of the displayed tab. I want each header to look 
+                like it is actually attatched to its associated tab. I essentially want exactly like how chrome tabs look with the
+                rounded corners and the way they blend into the tab content.
+             
+             2. Figure out how to customize the window to add logos and color/style the close, minimize, and maximize buttons 
+                as well as the appname and all the space in between
+    -->
+    <!-- The Main Window Contains two rows. A header and the tab section-->
+    <Grid Margin="10"> <!-- This margin Controls distance between everything displayed within the window and the window edge -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/> <!-- Header Row Static Size -->
+            <RowDefinition Height="*"/> <!-- Tab Section Fills remaining space -->
+        </Grid.RowDefinitions>
+        <!-- Header Row Content -->
+        <Grid Grid.Row="0" Background="red" Margin="0,0,0,10">
+            <!-- Three sections for the header row. Each can display Whatever -->
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/> <!-- Size to content -->
+                <ColumnDefinition Width="*"/> <!-- Take up remaining Space -->
+                <ColumnDefinition Width="Auto"/> <!-- Size to content -->
+            </Grid.ColumnDefinitions>
+            
+            <!-- Placeholder content for top row -->
+            <TextBlock Grid.Column="0" Text="Watchdog" Foreground="White" FontSize="24" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <TextBlock Grid.Column="1" Text="Cluster Status: 1 green 2 red" Foreground="White" FontSize="24" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Column="2" Text="maybe a little dropdown menu here idk" Foreground="White" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Right" Padding="5"/>
+        </Grid>
+        
+        <!-- Tab Section Content -->
+        <TabControl Grid.Row="1" Background="Gray" x:Name="ClusterTabs" ItemsSource="{Binding Clusters}" SelectedIndex="0">
 
-    <Grid>
-        <TabControl x:Name="ClusterTabs"
-                    ItemsSource="{Binding ClustersPlus}"
-                    SelectedIndex="{Binding SelectedClusterIndex, Mode=TwoWay}"
-                    SelectionChanged="ClusterTabs_SelectionChanged"
-                    Background="{StaticResource TabHeaderBrush}"
-                    BorderBrush="{StaticResource BackgroundBrush}"
-                    BorderThickness="0"
-                    Padding="0">
-
-            <TabControl.Resources>
+            <TabControl.ItemContainerStyle>
                 <Style TargetType="TabItem">
-                    <Setter Property="Background" Value="{StaticResource BackgroundBrush}" />
-                    <Setter Property="Foreground" Value="{StaticResource TabForeground}" />
-                    <Setter Property="BorderBrush" Value="{StaticResource TabHeaderBrush}" />
+                    <!-- Default background and border -->
+                    <Setter Property="Background" Value="{StaticResource TabHeaderBrush}" />
+                    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+                    <Setter Property="BorderBrush" Value="{StaticResource TabBorderBrush}" />
                     <Setter Property="BorderThickness" Value="0" />
-                </Style>
-                <Style TargetType="TabControl">
+                    <Setter Property="Padding" Value="10,4" />
+                    <Setter Property="Margin" Value="2,0,0,0" />
+                    <!-- slight spacing between tabs -->
                     <Setter Property="Template">
                         <Setter.Value>
-                            <ControlTemplate TargetType="TabControl">
-                                <Grid>
-                                    <DockPanel>
-                                        <TabPanel x:Name="HeaderPanel"
-                                                  Background="{StaticResource BackgroundBrush}"
-                                                  IsItemsHost="True"
-                                                  Margin="10,10,10,0"
-                                                  DockPanel.Dock="Top"/>
-                                        <Border CornerRadius="0,6,6,6"
-                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                Background="{TemplateBinding Background}"
-                                                Margin="10,0,10,10">
-                                            <ContentPresenter x:Name="ContentPanel"
-                                                              ContentSource="SelectedContent"
-                                                              Margin="0"/>
-                                        </Border>
-                                    </DockPanel>
-                                </Grid>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="6,6,0,0"
+                            Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter x:Name="ContentSite"
+                                          VerticalAlignment="Center"
+                                          HorizontalAlignment="Center"
+                                          ContentSource="Header"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <!-- Hover state -->
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#777" />
+                                    </Trigger>
+
+                                    <!-- Selected state -->
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="{StaticResource TabSelectedBackground}" />
+                                        <Setter Property="Panel.ZIndex" Value="1" />
+                                    </Trigger>
+
+                                    <!-- Disabled state -->
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Foreground" Value="Gray" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Setter.Value>
                     </Setter>
-                    <Setter Property="Background" Value="{StaticResource TabHeaderBrush}" />
-                    <Setter Property="BorderBrush" Value="{StaticResource TabBorderBrush}" />
-                    <Setter Property="BorderThickness" Value="0" />
-                    <Setter Property="Padding" Value="0" />
                 </Style>
-            </TabControl.Resources>
+            </TabControl.ItemContainerStyle>
 
+            <!-- Tab Header Template -->
             <TabControl.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Name}" Foreground="{StaticResource TextBrush}" Background="{StaticResource TabHeaderBrush}"/>
+                    <TextBlock Text="{Binding Name}" Margin="10,2"/>
                 </DataTemplate>
             </TabControl.ItemTemplate>
 
+            <!-- Tab Content Template -->
             <TabControl.ContentTemplate>
                 <DataTemplate>
-                    <Border Margin="10">
-                        <DockPanel Background="{StaticResource SidebarBrush}" LastChildFill="True">
+                    <!-- Cluster Tab Content -->
+                    <Grid Background="Gray">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50"/>
+                            <!-- Control Panel -->
+                            <RowDefinition Height="*"/>
+                            <!-- Content Display -->
+                        </Grid.RowDefinitions>
 
-                            <!-- Control Row -->
-                            <StackPanel Orientation="Horizontal"
-                                        DockPanel.Dock="Top"
-                                        Background="{StaticResource SidebarBrush}"
-                                        Height="40"
-                                        VerticalAlignment="Top"
-                                        HorizontalAlignment="Left"
-                                        Margin="0">
-                                <Button Content="Add Node"
-                                        Click="AddNode_Click"
-                                        Margin="0"
-                                        Padding="8,4"
-                                        Background="#55CC55"
-                                        Foreground="White"
-                                        FontWeight="Bold"
-                                        BorderThickness="0"
-                                        Cursor="Hand" />
+                        <!-- Control Panel -->
+                        <Grid Grid.Row="0"
+                              Background="Purple"
+                              Margin="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Don't change this from Grid -->
+                            <Button Grid.Column="0" Content="Add Node" Margin="5" Padding="5,0" Background="Beige" Height="Auto" Width="Auto" HorizontalAlignment="Center"/>
+                            <Button Grid.Column="1" Content="Delete Node" Margin="5" Padding="5,0" Background="Beige" Height="Auto" Width="Auto" HorizontalAlignment="Center"/>
+                            <Button Grid.Column="2" Content="Test Cluster" Margin="5" Padding="5,0" Background="Beige" Height="Auto" Width="Auto" HorizontalAlignment="Center"/>
+                        </Grid>
+
+                        <!-- Cluster Main Content -->
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <!-- Sidebar -->
+                                <ColumnDefinition Width="*"/>
+                                <!-- Node Grid -->
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Sidebar -->
+                            <StackPanel Grid.Column="0"
+                                        Background="LightGray"
+                                        Margin="5">
+                                <TextBlock Grid.Row="0"
+                                           Text="Nodes List"
+                                           Background="DarkGreen"
+                                           Foreground="White"
+                                           FontWeight="Bold"
+                                           Padding="10"/>
+                                <ListBox Grid.Row="1"
+                                         Background="LightGray"
+                                         BorderThickness="0"
+                                         Margin="0"
+                                         ItemsSource="{Binding Nodes}"
+                                         DisplayMemberPath="Hostname"/>
                             </StackPanel>
 
-                            <!-- Main Content Area -->
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="240" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-
-                                <!-- Sidebar -->
-                                <Border Grid.Column="0"
-                                        Background="{StaticResource SidebarBrush}"
-                                        BorderBrush="Black"
-                                        BorderThickness="0"
-                                        Margin="0">
-                                    <StackPanel Margin="0">
-                                        <TextBlock Text="Nodes"
-                                                   FontWeight="Bold"
-                                                   FontSize="16"
-                                                   Foreground="{StaticResource TextBrush}"
-                                                   Margin="0"/>
-                                        <ItemsControl ItemsSource="{Binding Nodes}">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding Hostname}" Foreground="{StaticResource TextBrush}" />
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </StackPanel>
-                                </Border>
-
-                                <!-- Node Grid -->
-                                <ScrollViewer Grid.Column="1"
-                                              Background="{StaticResource BackgroundBrush}"
-                                              VerticalScrollBarVisibility="Auto"
-                                              HorizontalScrollBarVisibility="Disabled"
-                                              Padding="0">
-                                    <ItemsControl ItemsSource="{Binding Nodes}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <UniformGrid Columns="4" />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border Background="{StaticResource SidebarBrush}"
-                                                        BorderBrush="Gray"
-                                                        BorderThickness="0"
-                                                        Margin="5"
-                                                        Width="150"
-                                                        Height="100">
-                                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                                        <TextBlock Text="{Binding Hostname}"
-                                                                   FontWeight="Bold"
-                                                                   Foreground="{StaticResource TextBrush}"
-                                                                   HorizontalAlignment="Center" />
-                                                        <TextBlock Text="{Binding Status}"
-                                                                   FontSize="12"
-                                                                   Foreground="{StaticResource TextBrush}"
-                                                                   HorizontalAlignment="Center" />
-                                                    </StackPanel>
-                                                </Border>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </ScrollViewer>
-                            </Grid>
-                        </DockPanel>
-                    </Border>
+                            <!-- Node Grid -->
+                            <ScrollViewer Grid.Column="1" 
+                                          Background="Orange"
+                                          Margin="5"
+                                          Padding="10">
+                                <ItemsControl ItemsSource="{Binding Nodes}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <UniformGrid Columns="4" Rows="4"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button Content="{Binding Hostname}"
+                                                    Margin="10"
+                                                    Background="Yellow"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </Grid>
                 </DataTemplate>
             </TabControl.ContentTemplate>
+            
         </TabControl>
     </Grid>
 </Window>
