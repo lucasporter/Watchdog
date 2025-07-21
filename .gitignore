@@ -1,3 +1,17 @@
-src/.vs
-src/obj
-src/bin
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.sqlite3
+
+# Node / React
+node_modules/
+dist/
+build/
+
+# Env files
+.env
+
+# IDEs
+.vscode/
+.idea/
