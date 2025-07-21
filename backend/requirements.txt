@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+alembic
+psycopg2-binary        # PostgreSQL driver
+pydantic
+celery[redis]           # Celery with Redis support
+redis
+
