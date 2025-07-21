@@ -1,18 +1,29 @@
 # backend/app/main.py
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.api.hosts import router as hosts_router
+from app.api.scan import router as scan_router
 
 app = FastAPI(
     title="Watchdog Monitoring API",
     version="0.1.0",
 )
 
-# a simple health check
-@app.get("/health")
-async def health():
-    return {"status": "ok"}
+# 1) List the origins your frontend will use:
+origins = [
+    "http://localhost:5173",   # Vite dev server
+    # add other origins here as needed (e.g. production domain)
+]
 
-# placeholder router includes (to import later)
-# from .api import hosts, health
-# app.include_router(hosts.router, prefix="/api/hosts", tags=["hosts"])
-# app.include_router(health.router, prefix="/api/hosts/{host_id}", tags=["health"])
+# 2) Add the CORS middleware _before_ you include any routers:
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,        # or ["*"] to allow all in dev
+    allow_credentials=True,
+    allow_methods=["*"],          # GET, POST, PUT, DELETE, etc.
+    allow_headers=["*"],          # allow all headers
+)
 
+# 3) Include your hosts router
+app.include_router(hosts_router, prefix="/api/hosts", tags=["hosts"])
+app.include_router(scan_router)

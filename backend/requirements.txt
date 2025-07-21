@@ -7,3 +7,4 @@ pydantic
 celery[redis]           # Celery with Redis support
 redis
 
+pydantic-settings

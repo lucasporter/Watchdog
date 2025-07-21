@@ -1,0 +1,59 @@
+version: "3.8"
+# ─────────────────────────────────────────────────────
+# your existing services section…
+services:
+  monitor-api:
+    build: ./backend
+    ports:
+      - "8080:8000"
+    environment:
+      DATABASE_URL: postgresql://watchdog:watchdog@postgres:5432/watchdog
+    depends_on:
+      - postgres
+    networks:
+      - watchdog_net
+
+  celery-worker:
+    build: ./backend
+    command: celery -A app.tasks worker --loglevel=info
+    environment:
+      DATABASE_URL: postgresql://watchdog:watchdog@postgres:5432/watchdog
+      CELERY_BROKER_URL: redis://redis:6379/0
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - watchdog_net
+
+  redis:
+    image: redis:7
+    networks:
+      - watchdog_net
+
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: watchdog
+      POSTGRES_PASSWORD: watchdog
+      POSTGRES_DB: watchdog
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - watchdog_net
+
+  monitor-ui:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    networks:
+      - watchdog_net
+
+volumes:
+  pgdata:
+
+networks:
+  watchdog_net:
+    name: watchdog_net
+    driver: bridge
+
