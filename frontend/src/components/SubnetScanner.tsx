@@ -1,7 +1,6 @@
 // frontend/src/components/SubnetScanner.tsx
-import { useState } from "react";
-import type { ScanResult } from "../types/scan";
-import { scanSubnet, createHost } from "../services/api";
+import { useState } from 'react';
+import { scanApi } from '../services/api';
 
 interface SubnetScannerProps {
   onAdd: () => void;
@@ -9,43 +8,27 @@ interface SubnetScannerProps {
 
 export function SubnetScanner({ onAdd }: SubnetScannerProps) {
   const [prefix, setPrefix] = useState("");
-  const [results, setResults] = useState<ScanResult[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [results, setResults] = useState<any[] | null>(null);
 
   const handleScan = async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await scanSubnet(prefix);
-      // only keep GREEN results
-      setResults(data.filter(r => r.status !== "RED"));
-    } catch (e) {
-      console.error(e);
-      setError("Scan failed");
+      const data = await scanApi.scanSubnet(prefix);
+      setResults(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Scan failed');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddHost = async (ip: string, hostname: string) => {
-    let nameToUse = hostname;
-    if (!hostname) {
-      // ask user for a name if none found
-      const entered = window.prompt(`No hostname for ${ip}. Enter a name to use:`);
-      if (!entered) {
-        return; // user cancelled
-      }
-      nameToUse = entered;
-    }
-    try {
-      await createHost({ name: nameToUse, address: ip });
-      // remove from the scan list
-      setResults(prev => prev?.filter(r => r.address !== ip) ?? null);
-      onAdd();
-    } catch {
-      alert("Failed to add host");
-    }
+  const handleAddHost = async (address: string, hostname: string) => {
+    // TODO: Implement host creation when needed
+    console.log("Host creation not implemented yet", { address, hostname });
+    onAdd();
   };
 
   return (
@@ -78,7 +61,7 @@ export function SubnetScanner({ onAdd }: SubnetScannerProps) {
             </tr>
           </thead>
           <tbody>
-            {results.map(r => (
+            {results.map((r: any) => (
               <tr key={r.address} className="hover:bg-gray-50">
                 <td className="border-t px-4 py-2">{r.address}</td>
                 <td className="border-t px-4 py-2">

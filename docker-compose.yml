@@ -1,4 +1,3 @@
-version: "3.8"
 # ─────────────────────────────────────────────────────
 # your existing services section…
 services:
@@ -12,6 +11,8 @@ services:
       - postgres
     networks:
       - watchdog_net
+    volumes:
+      - ./backend:/app
 
   celery-worker:
     build: ./backend
@@ -24,6 +25,8 @@ services:
       - redis
     networks:
       - watchdog_net
+    volumes:
+      - ./backend:/app
 
   redis:
     image: redis:7
@@ -33,6 +36,8 @@ services:
   postgres:
     image: postgres:15
     restart: always
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_USER: watchdog
       POSTGRES_PASSWORD: watchdog
@@ -48,6 +53,12 @@ services:
       - "5173:5173"
     networks:
       - watchdog_net
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
 
 volumes:
   pgdata:

@@ -24,6 +24,6 @@ app.add_middleware(
     allow_headers=["*"],          # allow all headers
 )
 
-# 3) Include your hosts router
-app.include_router(hosts_router, prefix="/api/hosts", tags=["hosts"])
+# 3) Include your routers
+app.include_router(hosts_router, prefix="/api", tags=["systems", "machines", "hosts"])
 app.include_router(scan_router)
