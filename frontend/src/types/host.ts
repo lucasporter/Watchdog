@@ -1,7 +1,7 @@
 // frontend/src/types/host.ts
 
-// Machine interface
-export interface Machine {
+// Node interface
+export interface Node {
   id: number;
   name: string;
   ip_address: string;
@@ -14,7 +14,7 @@ export interface Machine {
   memory_info?: string;
   disk_info?: string;
   notes?: string;
-  system_id: number;
+  cluster_id: number;
   ssh_reachable: boolean;
   is_alive: boolean;
   passing_unit_tests: boolean;
@@ -23,27 +23,18 @@ export interface Machine {
   updated_at: string;
 }
 
-// System interface
-export interface System {
+// Cluster interface
+export interface Cluster {
   id: number;
   name: string;
   description?: string;
   created_at: string;
   updated_at: string;
-  machines: Machine[];
-}
-
-// Legacy Host interface for backward compatibility
-export interface Host {
-  id: number;
-  name: string;
-  address: string;
-  alive?: boolean;         // is the host currently reachable?
-  passingTests?: boolean;  // is it passing all configured health checks?
+  nodes: Node[];
 }
 
 // Create/Update interfaces
-export interface MachineCreate {
+export interface NodeCreate {
   name: string;
   ip_address: string;
   hostname?: string;
@@ -55,10 +46,10 @@ export interface MachineCreate {
   memory_info?: string;
   disk_info?: string;
   notes?: string;
-  system_id: number;
+  cluster_id: number;
 }
 
-export interface MachineUpdate {
+export interface NodeUpdate {
   name?: string;
   ip_address?: string;
   hostname?: string;
@@ -72,13 +63,8 @@ export interface MachineUpdate {
   notes?: string;
 }
 
-export interface SystemCreate {
+export interface ClusterCreate {
   name: string;
-  description?: string;
-}
-
-export interface SystemUpdate {
-  name?: string;
   description?: string;
 }
 

@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 .venv/
+venv/
 *.sqlite3
 
 # Node / React
@@ -15,3 +16,23 @@ build/
 # IDEs
 .vscode/
 .idea/
+
+# Coverage reports
+.coverage
+htmlcov/
+.pytest_cache/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Database files
+*.db
+*.sqlite

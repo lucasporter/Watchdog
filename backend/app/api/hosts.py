@@ -5,158 +5,74 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List
 
-from app.schemas.host import System, SystemCreate, SystemUpdate, Machine, MachineCreate, MachineUpdate
-from app.models.host import System as SystemModel, Machine as MachineModel
+from app.schemas.host import Cluster, ClusterCreate, Node, NodeCreate, NodeUpdate
+from app.models.host import Cluster as ClusterModel, Node as NodeModel
 from app.db.session import get_db
 from app.utils.health import is_alive
 
 router = APIRouter()
 
-# System endpoints
-@router.get("/systems", response_model=List[System])
-def list_systems(db: Session = Depends(get_db)):
-    """Fetch all systems with their machines."""
-    return db.query(SystemModel).all()
+# Cluster endpoints
+@router.get("/clusters", response_model=List[Cluster])
+def list_clusters(db: Session = Depends(get_db)):
+    """Fetch all clusters with their nodes."""
+    return db.query(ClusterModel).all()
 
-@router.post("/systems", response_model=System, status_code=status.HTTP_201_CREATED)
-def create_system(system: SystemCreate, db: Session = Depends(get_db)):
-    """Create a new system."""
-    db_system = SystemModel(**system.dict())
-    db.add(db_system)
+@router.post("/clusters", response_model=Cluster, status_code=status.HTTP_201_CREATED)
+def create_cluster(cluster: ClusterCreate, db: Session = Depends(get_db)):
+    """Create a new cluster."""
+    db_cluster = ClusterModel(**cluster.dict())
+    db.add(db_cluster)
     db.commit()
-    db.refresh(db_system)
-    return db_system
+    db.refresh(db_cluster)
+    return db_cluster
 
-@router.get("/systems/{system_id}", response_model=System)
-def get_system(system_id: int, db: Session = Depends(get_db)):
-    """Get a specific system by ID."""
-    system = db.query(SystemModel).filter(SystemModel.id == system_id).first()
-    if not system:
-        raise HTTPException(status_code=404, detail="System not found")
-    return system
-
-@router.put("/systems/{system_id}", response_model=System)
-def update_system(system_id: int, system_update: SystemUpdate, db: Session = Depends(get_db)):
-    """Update a system."""
-    db_system = db.query(SystemModel).filter(SystemModel.id == system_id).first()
-    if not db_system:
-        raise HTTPException(status_code=404, detail="System not found")
+@router.post("/nodes", response_model=Node, status_code=status.HTTP_201_CREATED)
+def create_node(node: NodeCreate, db: Session = Depends(get_db)):
+    """Create a new node."""
+    # Verify cluster exists
+    cluster = db.query(ClusterModel).filter(ClusterModel.id == node.cluster_id).first()
+    if not cluster:
+        raise HTTPException(status_code=404, detail="Cluster not found")
     
-    update_data = system_update.dict(exclude_unset=True)
+    db_node = NodeModel(**node.dict())
+    db.add(db_node)
+    db.commit()
+    db.refresh(db_node)
+    return db_node
+
+@router.get("/nodes/{node_id}", response_model=Node)
+def get_node(node_id: int, db: Session = Depends(get_db)):
+    """Get a specific node by ID."""
+    node = db.query(NodeModel).filter(NodeModel.id == node_id).first()
+    if not node:
+        raise HTTPException(status_code=404, detail="Node not found")
+    return node
+
+@router.put("/nodes/{node_id}", response_model=Node)
+def update_node(node_id: int, node_update: NodeUpdate, db: Session = Depends(get_db)):
+    """Update a node."""
+    db_node = db.query(NodeModel).filter(NodeModel.id == node_id).first()
+    if not db_node:
+        raise HTTPException(status_code=404, detail="Node not found")
+    
+    update_data = node_update.dict(exclude_unset=True)
     for field, value in update_data.items():
-        setattr(db_system, field, value)
+        setattr(db_node, field, value)
     
-    db_system.updated_at = datetime.utcnow()
+    db_node.updated_at = datetime.utcnow()
     db.commit()
-    db.refresh(db_system)
-    return db_system
+    db.refresh(db_node)
+    return db_node
 
-@router.delete("/systems/{system_id}")
-def delete_system(system_id: int, db: Session = Depends(get_db)):
-    """Delete a system and all its machines."""
-    db_system = db.query(SystemModel).filter(SystemModel.id == system_id).first()
-    if not db_system:
-        raise HTTPException(status_code=404, detail="System not found")
+@router.delete("/nodes/{node_id}")
+def delete_node(node_id: int, db: Session = Depends(get_db)):
+    """Delete a node."""
+    db_node = db.query(NodeModel).filter(NodeModel.id == node_id).first()
+    if not db_node:
+        raise HTTPException(status_code=404, detail="Node not found")
     
-    db.delete(db_system)
+    db.delete(db_node)
     db.commit()
-    return {"message": "System deleted successfully"}
-
-# Machine endpoints
-@router.get("/machines", response_model=List[Machine])
-def list_machines(db: Session = Depends(get_db)):
-    """Fetch all machines with their current health status."""
-    machines = db.query(MachineModel).all()
-    results = []
-    for machine in machines:
-        # Update health status
-        machine.is_alive = is_alive(machine.ip_address, machine.ssh_port)
-        machine.last_health_check = datetime.utcnow()
-        
-        # TODO: Add actual unit test checking logic here
-        # For now, default to True
-        machine.passing_unit_tests = True
-        
-        results.append(machine)
-    
-    db.commit()
-    return results
-
-@router.get("/systems/{system_id}/machines", response_model=List[Machine])
-def list_system_machines(system_id: int, db: Session = Depends(get_db)):
-    """Fetch all machines for a specific system."""
-    system = db.query(SystemModel).filter(SystemModel.id == system_id).first()
-    if not system:
-        raise HTTPException(status_code=404, detail="System not found")
-    
-    machines = db.query(MachineModel).filter(MachineModel.system_id == system_id).all()
-    results = []
-    for machine in machines:
-        # Update health status
-        machine.is_alive = is_alive(machine.ip_address, machine.ssh_port)
-        machine.last_health_check = datetime.utcnow()
-        
-        # TODO: Add actual unit test checking logic here
-        # For now, default to True
-        machine.passing_unit_tests = True
-        
-        results.append(machine)
-    
-    db.commit()
-    return results
-
-@router.post("/machines", response_model=Machine, status_code=status.HTTP_201_CREATED)
-def create_machine(machine: MachineCreate, db: Session = Depends(get_db)):
-    """Create a new machine."""
-    # Verify system exists
-    system = db.query(SystemModel).filter(SystemModel.id == machine.system_id).first()
-    if not system:
-        raise HTTPException(status_code=404, detail="System not found")
-    
-    db_machine = MachineModel(**machine.dict())
-    db.add(db_machine)
-    db.commit()
-    db.refresh(db_machine)
-    return db_machine
-
-@router.get("/machines/{machine_id}", response_model=Machine)
-def get_machine(machine_id: int, db: Session = Depends(get_db)):
-    """Get a specific machine by ID."""
-    machine = db.query(MachineModel).filter(MachineModel.id == machine_id).first()
-    if not machine:
-        raise HTTPException(status_code=404, detail="Machine not found")
-    return machine
-
-@router.put("/machines/{machine_id}", response_model=Machine)
-def update_machine(machine_id: int, machine_update: MachineUpdate, db: Session = Depends(get_db)):
-    """Update a machine."""
-    db_machine = db.query(MachineModel).filter(MachineModel.id == machine_id).first()
-    if not db_machine:
-        raise HTTPException(status_code=404, detail="Machine not found")
-    
-    update_data = machine_update.dict(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(db_machine, field, value)
-    
-    db_machine.updated_at = datetime.utcnow()
-    db.commit()
-    db.refresh(db_machine)
-    return db_machine
-
-@router.delete("/machines/{machine_id}")
-def delete_machine(machine_id: int, db: Session = Depends(get_db)):
-    """Delete a machine."""
-    db_machine = db.query(MachineModel).filter(MachineModel.id == machine_id).first()
-    if not db_machine:
-        raise HTTPException(status_code=404, detail="Machine not found")
-    
-    db.delete(db_machine)
-    db.commit()
-    return {"message": "Machine deleted successfully"}
-
-# Legacy endpoint for backward compatibility
-@router.get("/hosts", response_model=List[Machine])
-def list_hosts(db: Session = Depends(get_db)):
-    """Legacy endpoint - returns all machines as hosts."""
-    return list_machines(db)
+    return {"message": "Node deleted successfully"}
 

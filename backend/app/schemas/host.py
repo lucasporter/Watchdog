@@ -3,8 +3,8 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
 
-# Machine schemas
-class MachineBase(BaseModel):
+# Node schemas
+class NodeBase(BaseModel):
     name: str
     ip_address: str
     hostname: Optional[str] = None
@@ -17,10 +17,10 @@ class MachineBase(BaseModel):
     disk_info: Optional[str] = None
     notes: Optional[str] = None
 
-class MachineCreate(MachineBase):
-    system_id: int
+class NodeCreate(NodeBase):
+    cluster_id: int
 
-class MachineUpdate(BaseModel):
+class NodeUpdate(BaseModel):
     name: Optional[str] = None
     ip_address: Optional[str] = None
     hostname: Optional[str] = None
@@ -33,9 +33,9 @@ class MachineUpdate(BaseModel):
     disk_info: Optional[str] = None
     notes: Optional[str] = None
 
-class Machine(MachineBase):
+class Node(NodeBase):
     id: int
-    system_id: int
+    cluster_id: int
     ssh_reachable: bool
     is_alive: bool
     passing_unit_tests: bool
@@ -46,35 +46,19 @@ class Machine(MachineBase):
     class Config:
         from_attributes = True
 
-# System schemas
-class SystemBase(BaseModel):
+# Cluster schemas
+class ClusterBase(BaseModel):
     name: str
     description: Optional[str] = None
 
-class SystemCreate(SystemBase):
+class ClusterCreate(ClusterBase):
     pass
 
-class SystemUpdate(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
-
-class System(SystemBase):
+class Cluster(ClusterBase):
     id: int
     created_at: datetime
     updated_at: datetime
-    machines: List[Machine] = []
-
-    class Config:
-        from_attributes = True
-
-# Legacy Host schema for backward compatibility (if needed)
-class Host(BaseModel):
-    id: int
-    name: str
-    address: str
-    created_at: datetime
-    alive: bool
-    passingTests: bool
+    nodes: List[Node] = []
 
     class Config:
         from_attributes = True

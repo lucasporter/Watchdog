@@ -4,8 +4,8 @@ from sqlalchemy.orm import relationship
 from app.db.base import Base
 from datetime import datetime
 
-class System(Base):
-    __tablename__ = "systems"
+class Cluster(Base):
+    __tablename__ = "clusters"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False, unique=True, index=True)
@@ -13,11 +13,11 @@ class System(Base):
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationship to machines
-    machines = relationship("Machine", back_populates="system", cascade="all, delete-orphan")
+    # Relationship to nodes
+    nodes = relationship("Node", back_populates="cluster", cascade="all, delete-orphan")
 
-class Machine(Base):
-    __tablename__ = "machines"
+class Node(Base):
+    __tablename__ = "nodes"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False, index=True)
@@ -46,7 +46,7 @@ class Machine(Base):
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Foreign key to system
-    system_id = Column(Integer, ForeignKey("systems.id"), nullable=False)
-    system = relationship("System", back_populates="machines")
+    # Foreign key to cluster
+    cluster_id = Column(Integer, ForeignKey("clusters.id"), nullable=False)
+    cluster = relationship("Cluster", back_populates="nodes")
 
